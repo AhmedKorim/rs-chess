@@ -1,0 +1,7 @@
+[workspace]
+members=[
+"chess-core",
+"chess-engine",
+"game-server",
+"auth-server",
+]
