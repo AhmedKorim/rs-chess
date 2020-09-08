@@ -6,6 +6,124 @@ pub struct Coordinate {
     y: u8,
 }
 
+impl Coordinate {
+    pub fn new(x: u8, y: u8) -> Self {
+        Coordinate { x, y }
+    }
+    pub fn create_right(&self) -> Self {
+        Coordinate {
+            x: self.x + 1,
+            ..self.clone()
+        }
+    }
+    pub fn create_left(&self) -> Self {
+        Coordinate {
+            x: self.x - 1,
+            ..self.clone()
+        }
+    }
+    pub fn create_top(&self) -> Self {
+        Coordinate {
+            y: self.y + 1,
+            ..self.clone()
+        }
+    }
+    pub fn create_bottom(&self) -> Self {
+        Coordinate {
+            y: self.y - 1,
+            ..self.clone()
+        }
+    }
+    pub fn create_bottom_left(&self) -> Self {
+        Coordinate {
+            x: self.x - 1,
+            y: self.y - 1,
+        }
+    }
+    pub fn create_bottom_right(&self) -> Self {
+        Coordinate {
+            x: self.x + 1,
+            y: self.y - 1,
+        }
+    }
+    pub fn create_top_left(&self) -> Self {
+        Coordinate {
+            x: self.x - 1,
+            y: self.y + 1,
+        }
+    }
+    pub fn create_top_right(&self) -> Self {
+        Coordinate {
+            x: self.x + 1,
+            y: self.y + 1,
+        }
+    }
+    /// lines
+    pub fn line_x(&self) -> Vec<Self> {
+        let mut line = Vec::new();
+        for x in 0..8 {
+            line.push(Coordinate::new(x, self.y))
+        }
+        line
+    }
+
+    pub fn line_x_left(&self) -> Vec<Self> {
+        let mut line = Vec::new();
+        for x in 0..(slef.x + 1) {
+            line.push(Coordinate::new(x, self.y))
+        }
+        line
+    }
+    pub fn line_x_right(&self) -> Vec<Self> {
+        let mut line = Vec::new();
+        for x in slef.x..8 {
+            line.push(Coordinate::new(x, self.y))
+        }
+        line
+    }
+    pub fn line_y(&self) -> Vec<Self> {
+        let mut line = Vec::new();
+        for y in 0..8 {
+            line.push(Coordinate::new(self.x, y))
+        }
+        line
+    }
+
+    pub fn line_y_top(&self) -> Vec<Self> {
+        let mut line = Vec::new();
+        for y in self.y..8 {
+            line.push(Coordinate::new(self.x, y))
+        }
+        line
+    }
+    pub fn line_y_bottom(&self) -> Vec<Self> {
+        let mut line = Vec::new();
+        for y in 0..(self.y + 1) {
+            line.push(Coordinate::new(self.x, y))
+        }
+        line
+    }
+
+    pub fn line_p45(&self) -> Vec<Self> {
+        Vec::new()
+    }
+    pub fn line_p45_top(&self) -> Vec<Self> {
+        Vec::new()
+    }
+    pub fn line_p45_bottom(&self) -> Vec<Self> {
+        Vec::new()
+    }
+    pub fn line_n45(&self) -> Vec<Self> {
+        Vec::new()
+    }
+    pub fn line_n45_top(&self) -> Vec<Self> {
+        Vec::new()
+    }
+    pub fn line_n45_bottom(&self) -> Vec<Self> {
+        Vec::new()
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct ChessPlayer {
     id: String,
@@ -17,6 +135,7 @@ pub enum Color {
     Black,
     White,
 }
+
 #[derive(Clone, Copy, Debug)]
 pub enum PieceType {
     King,
@@ -34,6 +153,7 @@ pub struct ChessPiece<'player> {
     player: &'player ChessPlayer,
     piece_type: PieceType,
 }
+
 impl<'player> ChessPiece<'player> {
     pub fn new(x: u8, y: u8, player: &'player ChessPlayer, piece_type: PieceType) -> Self {
         ChessPiece {
@@ -42,6 +162,147 @@ impl<'player> ChessPiece<'player> {
             piece_type,
             player,
         }
+    }
+    pub fn next_moves(&self) -> Vec<Coordinate> {
+        let mut next_moves = Vec::new();
+        let Coordinate { x, y } = self.coordinate;
+        let can_go_up = y != 7;
+        let can_go_down = y != 0;
+        let can_go_right = x != 7;
+        let can_go_left = x != 0;
+
+        match self.piece_type {
+            PieceType::King => {
+                if can_go_up {
+                    next_moves.push(self.coordinate.crate_top())
+                }
+                if can_go_down {
+                    next_moves.push(self.coordinate.create_bottom());
+                }
+                if can_go_left {
+                    next_moves.push(self.coordinate.create_left())
+                }
+                if can_go_right {
+                    next_moves.push(self.coordinate.create_right())
+                }
+
+                if can_go_right && can_go_up {
+                    next_moves.push(self.coordinate.create_top_right())
+                }
+                if can_go_right && can_go_down {
+                    next_moves.push(self.coordinate.create_bottom_right())
+                }
+                if can_go_left && can_go_up {
+                    next_moves.push(self.coordinate.create_top_left())
+                }
+                if can_go_left && can_go_down {
+                    next_moves.push(self.coordinate.create_bottom_left())
+                }
+            }
+            PieceType::Queen => {
+                if can_go_up {
+                    next_moves.push(self.coordinate.line_y_top())
+                }
+                if can_go_down {
+                    next_moves.push(self.coordinate.line_y_bottom());
+                }
+                if can_go_left {
+                    next_moves.push(self.coordinate.line_x_left())
+                }
+                if can_go_right {
+                    next_moves.push(self.coordinate.line_x_right())
+                }
+
+                if can_go_right && can_go_up {
+                    next_moves.push(self.coordinate.line_p45_top())
+                }
+                if can_go_right && can_go_down {
+                    next_moves.push(self.coordinate.line_p45_bottom())
+                }
+                if can_go_left && can_go_up {
+                    next_moves.push(self.coordinate.line_n45_top()())
+                }
+                if can_go_left && can_go_down {
+                    next_moves.push(self.coordinate.line_n45_bottom())
+                }
+            }
+            PieceType::Bishop => {
+                if can_go_right && can_go_up {
+                    next_moves.push(self.coordinate.line_p45_top())
+                }
+                if can_go_right && can_go_down {
+                    next_moves.push(self.coordinate.line_p45_bottom())
+                }
+                if can_go_left && can_go_up {
+                    next_moves.push(self.coordinate.line_n45_top()())
+                }
+                if can_go_left && can_go_down {
+                    next_moves.push(self.coordinate.line_n45_bottom())
+                }
+            }
+            PieceType::Knight => {
+                let have_3_tails_up = y <= 7 - 3;
+                let have_3_tails_down = y >= 3;
+                let have_3_tails_right = x <= 7 - 3;
+                let have_3_tails_left = x >= 3;
+                if have_3_tails_up {
+                    if can_go_left {
+                        next_moves.push(Coordinate::new(x - 1, y + 3))
+                    }
+                    if can_go_right {
+                        next_moves.push(Coordinate::new(x + 1, y + 3))
+                    }
+                }
+                if have_3_tails_down {
+                    if can_go_left {
+                        next_moves.push(Coordinate::new(x - 1, y - 3))
+                    }
+                    if can_go_right {
+                        next_moves.push(Coordinate::new(x + 1, y - 3))
+                    }
+                }
+                if have_3_tails_left {
+                    if can_go_up {
+                        next_moves.push(Coordinate::new(x - 3, y + 1))
+                    }
+                    if can_go_down {
+                        next_moves.push(Coordinate::new(x - 3, y - 1))
+                    }
+                }
+                if have_3_tails_right {
+                    if can_go_up {
+                        next_moves.push(Coordinate::new(x + 3, y + 1))
+                    }
+                    if can_go_down {
+                        next_moves.push(Coordinate::new(x + 3, y - 1))
+                    }
+                }
+            }
+            PieceType::Rook => {
+                if can_go_up {
+                    next_moves.push(self.coordinate.line_y_top())
+                }
+                if can_go_down {
+                    next_moves.push(self.coordinate.line_y_bottom());
+                }
+                if can_go_left {
+                    next_moves.push(self.coordinate.line_x_left())
+                }
+                if can_go_right {
+                    next_moves.push(self.coordinate.line_x_right())
+                }
+            }
+            PieceType::Pawn => {
+                // todo prevent from glowing that the player can't
+                if can_go_up {
+                    next_moves.push(self.coordinate.crate_top())
+                }
+                if can_go_down {
+                    next_moves.push(self.coordinate.create_bottom());
+                }
+            }
+        }
+        next_moves
     }
 }
 
@@ -147,6 +408,7 @@ fn init_pieces(player: &'a ChessPlayer, top: bool) -> Vec<ChessPiece<'a>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn game_board_has_64_tails() {
         let player_1: ChessPlayer = ChessPlayer {
@@ -163,5 +425,6 @@ mod tests {
         assert_eq!(game.tails.len() as u64, 64 as u64);
         dbg!(&player_1, &player_2);
     }
+
     fn game_board_has_16_pieces() {}
 }
