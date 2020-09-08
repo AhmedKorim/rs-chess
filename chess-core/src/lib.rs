@@ -69,14 +69,14 @@ impl Coordinate {
 
     pub fn line_x_left(&self) -> Vec<Self> {
         let mut line = Vec::new();
-        for x in 0..(slef.x + 1) {
+        for x in 0..(self.x + 1) {
             line.push(Coordinate::new(x, self.y))
         }
         line
     }
     pub fn line_x_right(&self) -> Vec<Self> {
         let mut line = Vec::new();
-        for x in slef.x..8 {
+        for x in self.x..8 {
             line.push(Coordinate::new(x, self.y))
         }
         line
@@ -174,7 +174,7 @@ impl<'player> ChessPiece<'player> {
         match self.piece_type {
             PieceType::King => {
                 if can_go_up {
-                    next_moves.push(self.coordinate.crate_top())
+                    next_moves.push(self.coordinate.create_top())
                 }
                 if can_go_down {
                     next_moves.push(self.coordinate.create_bottom());
@@ -201,43 +201,43 @@ impl<'player> ChessPiece<'player> {
             }
             PieceType::Queen => {
                 if can_go_up {
-                    next_moves.push(self.coordinate.line_y_top())
+                    next_moves = [self.coordinate.line_y_top(), next_moves].concat();
                 }
                 if can_go_down {
-                    next_moves.push(self.coordinate.line_y_bottom());
+                    next_moves = [self.coordinate.line_y_bottom(), next_moves].concat();
                 }
                 if can_go_left {
-                    next_moves.push(self.coordinate.line_x_left())
+                    next_moves = [self.coordinate.line_x_left(), next_moves].concat();
                 }
                 if can_go_right {
-                    next_moves.push(self.coordinate.line_x_right())
+                    next_moves = [self.coordinate.line_x_right(), next_moves].concat();
                 }
 
                 if can_go_right && can_go_up {
-                    next_moves.push(self.coordinate.line_p45_top())
+                    next_moves = [self.coordinate.line_p45_top(), next_moves].concat();
                 }
                 if can_go_right && can_go_down {
-                    next_moves.push(self.coordinate.line_p45_bottom())
+                    next_moves = [self.coordinate.line_p45_bottom(), next_moves].concat();
                 }
                 if can_go_left && can_go_up {
-                    next_moves.push(self.coordinate.line_n45_top())
+                    next_moves = [self.coordinate.line_n45_top(), next_moves].concat();
                 }
                 if can_go_left && can_go_down {
-                    next_moves.push(self.coordinate.line_n45_bottom())
+                    next_moves = [self.coordinate.line_n45_bottom(), next_moves].concat();
                 }
             }
             PieceType::Bishop => {
                 if can_go_right && can_go_up {
-                    next_moves.push(self.coordinate.line_p45_top())
+                    next_moves = [self.coordinate.line_p45_top(), next_moves].concat();
                 }
                 if can_go_right && can_go_down {
-                    next_moves.push(self.coordinate.line_p45_bottom())
+                    next_moves = [self.coordinate.line_p45_bottom(), next_moves].concat();
                 }
                 if can_go_left && can_go_up {
-                    next_moves.push(self.coordinate.line_n45_top()())
+                    next_moves = [self.coordinate.line_n45_top(), next_moves].concat();
                 }
                 if can_go_left && can_go_down {
-                    next_moves.push(self.coordinate.line_n45_bottom())
+                    next_moves = [self.coordinate.line_n45_bottom(), next_moves].concat();
                 }
             }
             PieceType::Knight => {
@@ -280,22 +280,22 @@ impl<'player> ChessPiece<'player> {
             }
             PieceType::Rook => {
                 if can_go_up {
-                    next_moves.push(self.coordinate.line_y_top())
+                    next_moves = [self.coordinate.line_y_top(), next_moves].concat();
                 }
                 if can_go_down {
-                    next_moves.push(self.coordinate.line_y_bottom());
+                    next_moves = [self.coordinate.line_y_bottom(), next_moves].concat();
                 }
                 if can_go_left {
-                    next_moves.push(self.coordinate.line_x_left())
+                    next_moves = [self.coordinate.line_x_left(), next_moves].concat();
                 }
                 if can_go_right {
-                    next_moves.push(self.coordinate.line_x_right())
+                    next_moves = [self.coordinate.line_x_right(), next_moves].concat();
                 }
             }
             PieceType::Pawn => {
                 // todo prevent from glowing that the player can't
                 if can_go_up {
-                    next_moves.push(self.coordinate.crate_top());
+                    next_moves.push(self.coordinate.create_top());
                     if can_go_left {
                         next_moves.push(self.coordinate.create_top_left());
                     }
