@@ -1,3 +1,4 @@
+#[allow(unsed)]
 use std::fs::read_to_string;
 use std::time::Instant;
 
@@ -8,18 +9,18 @@ struct Coordinate {
 }
 
 #[derive(Clone, Debug)]
-struct ChessPlayer {
+pub struct ChessPlayer {
     id: String,
     color: Color,
 }
 
 #[derive(Clone, Copy, Debug)]
-enum Color {
+pub enum Color {
     Black,
     White,
 }
 #[derive(Clone, Copy, Debug)]
-enum PieceType {
+pub enum PieceType {
     King,
     Queen,
     Bishop,
@@ -29,14 +30,14 @@ enum PieceType {
 }
 
 #[derive(Clone, Copy, Debug)]
-struct ChessPiece {
+pub struct ChessPiece<'a> {
     id: (u8, u8),
     coordinate: Coordinate,
-    player: &'static ChessPlayer,
+    player: &'a ChessPlayer,
     piece_type: PieceType,
 }
-impl ChessPiece {
-    pub fn new(x: u8, y: u8, player: &'static ChessPlayer, piece_type: PieceType) -> Self {
+impl<'a> ChessPiece {
+    pub fn new(x: u8, y: u8, player: &'a ChessPlayer, piece_type: PieceType) -> Self {
         ChessPiece {
             coordinate: Coordinate { x, y },
             id: (x, y),
@@ -46,9 +47,9 @@ impl ChessPiece {
     }
 }
 
-type Date = String;
+pub type Date = String;
 
-struct GameState {
+pub struct GameState {
     piece_id: u8,
     coordinate: Coordinate,
 }
@@ -87,18 +88,18 @@ struct Tail {
     color: Color,
 }
 
-struct ChessBoard {
+pub struct ChessBoard {
     history: Vec<GameHistory>,
     current_state: GameHistory,
-    pieces: Vec<ChessPiece>,
+    pieces: Vec<ChessPiece<'_>>,
     tails: Vec<Tail>,
-    current_player: &'static ChessPlayer,
+    current_player: ChessPlayer,
 }
 
 impl ChessBoard {
-    pub fn new(player_a: &'static ChessPlayer, player_b: &'static ChessPlayer) -> Self {
+    pub fn new(player_a: ChessPlayer, player_b: ChessPlayer) -> Self {
         ChessBoard {
-            current_player: &player_a,
+            current_player: player_a,
             current_state: GameHistory::new(),
             tails: init_tails(),
             history: Vec::new(),
@@ -147,8 +148,24 @@ fn init_pieces(player: &'static ChessPlayer, top: bool) -> Vec<ChessPiece> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use std::rc::Rc;
+
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn game_board_has_64_tails() {
+        let player_1 = ChessPlayer {
+            id: "one".to_string(),
+            color: Color::Black,
+        };
+        let player_2 = ChessPlayer {
+            id: "two".to_string(),
+            color: Color::White,
+        };
+
+        let game = ChessBoard::new(player_1.clone(), player_1.clone());
+
+        assert_eq!(game.tails.len(), 64);
+        dbg!(&player_1, &player_2);
     }
+    fn game_board_has_16_pieces() {}
 }
