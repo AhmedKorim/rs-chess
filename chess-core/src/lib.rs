@@ -220,7 +220,7 @@ impl<'player> ChessPiece<'player> {
                     next_moves.push(self.coordinate.line_p45_bottom())
                 }
                 if can_go_left && can_go_up {
-                    next_moves.push(self.coordinate.line_n45_top()())
+                    next_moves.push(self.coordinate.line_n45_top())
                 }
                 if can_go_left && can_go_down {
                     next_moves.push(self.coordinate.line_n45_bottom())
@@ -295,10 +295,22 @@ impl<'player> ChessPiece<'player> {
             PieceType::Pawn => {
                 // todo prevent from glowing that the player can't
                 if can_go_up {
-                    next_moves.push(self.coordinate.crate_top())
+                    next_moves.push(self.coordinate.crate_top());
+                    if can_go_left {
+                        next_moves.push(self.coordinate.create_top_left());
+                    }
+                    if can_go_right {
+                        next_moves.push(self.coordinate.create_top_right());
+                    }
                 }
                 if can_go_down {
                     next_moves.push(self.coordinate.create_bottom());
+                    if can_go_left {
+                        next_moves.push(self.coordinate.create_bottom_left());
+                    }
+                    if can_go_right {
+                        next_moves.push(self.coordinate.create_bottom_right());
+                    }
                 }
             }
         }
