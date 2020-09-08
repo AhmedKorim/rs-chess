@@ -1,9 +1,7 @@
-#[allow(unsed)]
-use std::fs::read_to_string;
-use std::time::Instant;
+#![feature(in_band_lifetimes)]
 
 #[derive(Clone, Copy, Debug)]
-struct Coordinate {
+pub struct Coordinate {
     x: u8,
     y: u8,
 }
@@ -30,14 +28,14 @@ pub enum PieceType {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct ChessPiece<'a> {
+pub struct ChessPiece<'player> {
     id: (u8, u8),
     coordinate: Coordinate,
-    player: &'a ChessPlayer,
+    player: &'player ChessPlayer,
     piece_type: PieceType,
 }
-impl<'a> ChessPiece {
-    pub fn new(x: u8, y: u8, player: &'a ChessPlayer, piece_type: PieceType) -> Self {
+impl<'player> ChessPiece<'player> {
+    pub fn new(x: u8, y: u8, player: &'player ChessPlayer, piece_type: PieceType) -> Self {
         ChessPiece {
             coordinate: Coordinate { x, y },
             id: (x, y),
@@ -88,16 +86,16 @@ struct Tail {
     color: Color,
 }
 
-pub struct ChessBoard {
+pub struct ChessBoard<'player> {
     history: Vec<GameHistory>,
     current_state: GameHistory,
-    pieces: Vec<ChessPiece<'_>>,
+    pieces: Vec<ChessPiece<'player>>,
     tails: Vec<Tail>,
-    current_player: ChessPlayer,
+    current_player: &'player ChessPlayer,
 }
 
-impl ChessBoard {
-    pub fn new(player_a: ChessPlayer, player_b: ChessPlayer) -> Self {
+impl<'player> ChessBoard<'player> {
+    pub fn new(player_a: &'player ChessPlayer, player_b: &'player ChessPlayer) -> Self {
         ChessBoard {
             current_player: player_a,
             current_state: GameHistory::new(),
@@ -125,7 +123,7 @@ fn init_tails() -> Vec<Tail> {
     tails
 }
 
-fn init_pieces(player: &'static ChessPlayer, top: bool) -> Vec<ChessPiece> {
+fn init_pieces(player: &'a ChessPlayer, top: bool) -> Vec<ChessPiece<'a>> {
     let first_row_y = if top { 7 } else { 0 };
     let second_row_y = if top { 6 } else { 1 };
     let mut pieces = vec![
@@ -149,22 +147,20 @@ fn init_pieces(player: &'static ChessPlayer, top: bool) -> Vec<ChessPiece> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::rc::Rc;
-
     #[test]
     fn game_board_has_64_tails() {
-        let player_1 = ChessPlayer {
+        let player_1: ChessPlayer = ChessPlayer {
             id: "one".to_string(),
             color: Color::Black,
         };
-        let player_2 = ChessPlayer {
+        let player_2: ChessPlayer = ChessPlayer {
             id: "two".to_string(),
             color: Color::White,
         };
 
-        let game = ChessBoard::new(player_1.clone(), player_1.clone());
+        let game = ChessBoard::new(&player_1, &player_2);
 
-        assert_eq!(game.tails.len(), 64);
+        assert_eq!(game.tails.len() as u64, 64 as u64);
         dbg!(&player_1, &player_2);
     }
     fn game_board_has_16_pieces() {}
